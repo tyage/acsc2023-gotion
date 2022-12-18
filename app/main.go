@@ -41,9 +41,9 @@ func GetNotePath(noteId uuid.UUID) (string, string) {
 	return noteFilePath, notePublicPath
 }
 
-func ValidateNoteMemo(memo string) error {
-	if len(memo) > 1024 {
-		return errors.New("memo is too long")
+func ValidateNoteBody(body string) error {
+	if len(body) > 1024 {
+		return errors.New("note is too long")
 	}
 	return nil
 }
@@ -51,12 +51,12 @@ func ValidateNoteMemo(memo string) error {
 func main() {
 
 	http.HandleFunc("/new-note", func(w http.ResponseWriter, r *http.Request) {
-		memo := r.FormValue("memo")
+		body := r.FormValue("body")
 
-		// validate memo
-		err := ValidateNoteMemo(memo)
+		// validate body
+		err := ValidateNoteBody(body)
 		if err != nil {
-			http.Error(w, "invalid memo", http.StatusInternalServerError)
+			http.Error(w, "invalid body", http.StatusInternalServerError)
 			return
 		}
 
@@ -65,18 +65,18 @@ func main() {
 
 		f, err := os.Create(noteFilePath)
 		if err != nil {
-			http.Error(w, "failed memo creation", http.StatusInternalServerError)
+			http.Error(w, "failed note creation", http.StatusInternalServerError)
 			return
 		}
 
-		WriteNote(f, NoteParam{Id: noteId, Body: memo})
+		WriteNote(f, NoteParam{Id: noteId, Body: body})
 
 		http.Redirect(w, r, noteURL, http.StatusFound)
 	})
 
 	http.HandleFunc("/update-note", func(w http.ResponseWriter, r *http.Request) {
 		noteId := r.FormValue("noteId")
-		memo := r.FormValue("memo")
+		body := r.FormValue("body")
 
 		// validate noteId
 		uuidNoteId, err := uuid.Parse(noteId)
@@ -85,22 +85,22 @@ func main() {
 			return
 		}
 
-		// validate memo
-		err = ValidateNoteMemo(memo)
+		// validate body
+		err = ValidateNoteBody(body)
 		if err != nil {
-			http.Error(w, "invalid memo", http.StatusInternalServerError)
+			http.Error(w, "invalid body", http.StatusInternalServerError)
 			return
 		}
 
 		noteFilePath, noteURL := GetNotePath(uuidNoteId)
 
-		f, err := os.Open(noteFilePath)
+		f, err := os.OpenFile(noteFilePath, os.O_WRONLY, 0644)
 		if err != nil {
 			http.Error(w, "invalid note", http.StatusInternalServerError)
 			return
 		}
 
-		WriteNote(f, NoteParam{Id: uuidNoteId, Body: memo})
+		WriteNote(f, NoteParam{Id: uuidNoteId, Body: body})
 
 		http.Redirect(w, r, noteURL, http.StatusFound)
 	})
