@@ -1,0 +1,13 @@
+version: '3.4'
+
+services:
+  app:
+    build:
+      context: app
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 30080:80
+
