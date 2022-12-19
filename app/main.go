@@ -6,13 +6,16 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 
 	"github.com/google/uuid"
 )
 
 type NoteParam struct {
-	Id   uuid.UUID
-	Body string
+	Id    string
+	Title string
+	Body  string
 }
 
 const (
@@ -33,9 +36,14 @@ func WriteNote(file *os.File, body NoteParam) {
 	}
 }
 
-func GetNotePath(noteId uuid.UUID) (string, string) {
-	noteFile := noteId.String() + ".html"
-	notePublicPath := filepath.Join(NoteBaseDir, noteFile)
+func GenerateNoteId(title string) string {
+	prefix := uuid.New().String()
+	id := prefix + "-" + strings.ReplaceAll(title, " ", "-")
+	return id
+}
+
+func GetNotePath(noteId string) (string, string) {
+	notePublicPath := filepath.Join(NoteBaseDir, noteId)
 	noteFilePath := filepath.Join(PublicDir, notePublicPath)
 
 	return noteFilePath, notePublicPath
@@ -47,11 +55,34 @@ func ValidateNoteBody(body string) error {
 	}
 	return nil
 }
+func ValidateNoteTitle(title string) error {
+	if len(title) > 20 {
+		return errors.New("title is too long")
+	}
+
+	validTitleRegExp := regexp.MustCompile("^[a-zA-Z0-9 ]+$")
+	if !validTitleRegExp.MatchString(title) {
+		return errors.New("title is invalid")
+	}
+	return nil
+}
+func ValidateNoteId(id string) error {
+	if len(id) > 60 {
+		return errors.New("id is too long")
+	}
+
+	validTitleRegExp := regexp.MustCompile("^[a-zA-Z0-9-]+$")
+	if !validTitleRegExp.MatchString(id) {
+		return errors.New("id is invalid")
+	}
+	return nil
+}
 
 func main() {
 
 	http.HandleFunc("/new-note", func(w http.ResponseWriter, r *http.Request) {
 		body := r.FormValue("body")
+		title := r.FormValue("title")
 
 		// validate body
 		err := ValidateNoteBody(body)
@@ -60,7 +91,14 @@ func main() {
 			return
 		}
 
-		noteId := uuid.New()
+		// validate title
+		err = ValidateNoteTitle(title)
+		if err != nil {
+			http.Error(w, "invalid title", http.StatusInternalServerError)
+			return
+		}
+
+		noteId := GenerateNoteId(title)
 		noteFilePath, noteURL := GetNotePath(noteId)
 
 		f, err := os.Create(noteFilePath)
@@ -69,19 +107,27 @@ func main() {
 			return
 		}
 
-		WriteNote(f, NoteParam{Id: noteId, Body: body})
+		WriteNote(f, NoteParam{Id: noteId, Title: title, Body: body})
 
 		http.Redirect(w, r, noteURL, http.StatusFound)
 	})
 
 	http.HandleFunc("/update-note", func(w http.ResponseWriter, r *http.Request) {
 		noteId := r.FormValue("noteId")
+		title := r.FormValue("title")
 		body := r.FormValue("body")
 
 		// validate noteId
-		uuidNoteId, err := uuid.Parse(noteId)
+		err := ValidateNoteId(noteId)
 		if err != nil {
-			http.Error(w, "invalid noteId", http.StatusInternalServerError)
+			http.Error(w, "invalid id", http.StatusInternalServerError)
+			return
+		}
+
+		// validate body
+		err = ValidateNoteTitle(title)
+		if err != nil {
+			http.Error(w, "invalid title", http.StatusInternalServerError)
 			return
 		}
 
@@ -92,7 +138,7 @@ func main() {
 			return
 		}
 
-		noteFilePath, noteURL := GetNotePath(uuidNoteId)
+		noteFilePath, noteURL := GetNotePath(noteId)
 
 		f, err := os.OpenFile(noteFilePath, os.O_WRONLY, 0644)
 		if err != nil {
@@ -100,7 +146,7 @@ func main() {
 			return
 		}
 
-		WriteNote(f, NoteParam{Id: uuidNoteId, Body: body})
+		WriteNote(f, NoteParam{Id: noteId, Title: title, Body: body})
 
 		http.Redirect(w, r, noteURL, http.StatusFound)
 	})
