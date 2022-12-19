@@ -26,7 +26,8 @@
 
     <form action="/new-note" method="POST" class="row g-3">
       <div class="col-12">
-        <input type="text" name="title" class="form-control" placeholder="title">
+        <input type="text" name="title" class="form-control" placeholder="title format [a-zA-Z0-9 ]+"
+          pattern="[a-zA-Z0-9 ]+" maxlength="20">
       </div>
       <div class="col-12 form-floating">
         <textarea name="body" class="form-control" placeholder="note" style="height: 300px;"></textarea>
