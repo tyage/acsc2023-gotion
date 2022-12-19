@@ -124,7 +124,7 @@ func main() {
 			return
 		}
 
-		// validate body
+		// validate title
 		err = ValidateNoteTitle(title)
 		if err != nil {
 			http.Error(w, "invalid title", http.StatusInternalServerError)
