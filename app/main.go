@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"html/template"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -14,6 +15,7 @@ import (
 
 type NoteParam struct {
 	Id    string
+	URL   string
 	Title string
 	Body  string
 }
@@ -107,7 +109,12 @@ func main() {
 			return
 		}
 
-		WriteNote(f, NoteParam{Id: noteId, Title: title, Body: body})
+		WriteNote(f, NoteParam{
+			Id:    noteId,
+			URL:   noteURL,
+			Title: title,
+			Body:  body,
+		})
 
 		http.Redirect(w, r, noteURL, http.StatusFound)
 	})
@@ -146,9 +153,30 @@ func main() {
 			return
 		}
 
-		WriteNote(f, NoteParam{Id: noteId, Title: title, Body: body})
+		WriteNote(f, NoteParam{
+			Id:    noteId,
+			URL:   noteURL,
+			Title: title,
+			Body:  body,
+		})
 
 		http.Redirect(w, r, noteURL, http.StatusFound)
+	})
+
+	http.HandleFunc("/report", func(w http.ResponseWriter, r *http.Request) {
+		// TODO: captcha
+		path := r.FormValue("path")
+
+		conn, err := net.Dial("tcp", "bot:3000")
+		if err != nil {
+			http.Error(w, "report failed", http.StatusInternalServerError)
+			return
+		}
+		defer conn.Close()
+
+		conn.Write([]byte(path))
+
+		w.Write([]byte("reported"))
 	})
 
 	http.Handle("/", http.FileServer(http.Dir(PublicDir)))

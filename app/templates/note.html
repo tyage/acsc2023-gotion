@@ -16,11 +16,22 @@
 <body>
 
   <div class="container">
-    <p>
+    <div class="card mt-5">
+      <div class="card-body">
+        <h4 class="card-title">{{.Title}}</h4>
+        <pre>{{.Body}}</pre>
+      </div>
+    </div>
+
+    <div>
       <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#editNote">
-        Edit this
+        Edit
       </button>
-    </p>
+      <form action="/report" method="POST">
+        <input type="hidden" name="path" value="{{.URL}}">
+        <button class="btn btn-link">Report</button>
+      </form>
+    </div>
 
     <div class="collapse m-3" id="editNote">
       <form action="/update-note" method="POST" class="row g-3">
@@ -37,13 +48,6 @@
           <input type="submit" value="Edit" class="btn btn-primary">
         </div>
       </form>
-    </div>
-
-    <div class="card">
-      <div class="card-body">
-        <h4 class="card-title">{{.Title}}</h4>
-        <pre>{{.Body}}</pre>
-      </div>
     </div>
   </div>
 

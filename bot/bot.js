@@ -1,14 +1,14 @@
 const pptr = require('puppeteer')
 const net = require('net')
 
-const APP_URL = 'http://nginx/'
-const APP_HOST = 'nginx'
+const APP_BASEURL = process.env.APP_BASEURL || 'http://nginx/'
+const APP_HOST = process.env.APP_HOST || 'nginx'
 const FLAG = process.env.FLAG || 'CTF{dummyflag}'
 
 const sleep = d => new Promise(r => setTimeout(r, d));
 
 const crawl = async (path = '') => {
-  const url = APP_URL + path
+  const url = APP_BASEURL + path
 
   console.log("crawl start:", url)
 

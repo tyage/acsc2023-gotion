@@ -14,4 +14,8 @@ services:
     image: ghcr.io/puppeteer/puppeteer:19.4.1
     volumes:
       - ./bot/bot.js:/home/pptruser/bot.js
+    environment:
+      - FLAG=CTF{dummyflag}
+      - APP_BASEURL=http://nginx/
+      - APP_HOST=nginx
     command: node /home/pptruser/bot.js
