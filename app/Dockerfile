@@ -12,4 +12,10 @@ RUN apk --no-cache add ca-certificates
 COPY --from=builder /go/bin/app /app
 ENTRYPOINT /app
 LABEL Name=app Version=0.0.1
+
+RUN mkdir /gotion
+COPY ./templates /gotion/templates
+COPY ./public /gotion/public
+WORKDIR /gotion
+
 EXPOSE 3000
