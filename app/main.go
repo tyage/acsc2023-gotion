@@ -147,7 +147,7 @@ func main() {
 
 		noteFilePath, noteURL := GetNotePath(noteId)
 
-		f, err := os.OpenFile(noteFilePath, os.O_WRONLY, 0644)
+		f, err := os.OpenFile(noteFilePath, os.O_WRONLY|os.O_TRUNC, 0644)
 		if err != nil {
 			http.Error(w, "invalid note", http.StatusInternalServerError)
 			return
