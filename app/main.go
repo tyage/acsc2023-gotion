@@ -10,14 +10,16 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/dpapathanasiou/go-recaptcha"
 	"github.com/google/uuid"
 )
 
 type NoteParam struct {
-	Id    string
-	URL   string
-	Title string
-	Body  string
+	Id               string
+	URL              string
+	Title            string
+	Body             string
+	RecaptchaSiteKey string
 }
 
 const (
@@ -27,6 +29,8 @@ const (
 )
 
 func WriteNote(file *os.File, body NoteParam) {
+	body.RecaptchaSiteKey = os.Getenv("RECAPTCHA_SITEKEY")
+
 	tmpl, err := template.ParseFiles(NoteTemplate)
 	if err != nil {
 		panic(err)
@@ -81,6 +85,7 @@ func ValidateNoteId(id string) error {
 }
 
 func main() {
+	recaptcha.Init(os.Getenv("RECAPTCHA_SECRETKEY"))
 
 	http.HandleFunc("/new-note", func(w http.ResponseWriter, r *http.Request) {
 		body := r.FormValue("body")
@@ -164,8 +169,15 @@ func main() {
 	})
 
 	http.HandleFunc("/report", func(w http.ResponseWriter, r *http.Request) {
-		// TODO: captcha
 		path := r.FormValue("path")
+		recaptchaResponse := r.FormValue("g-recaptcha-response")
+
+		// recaptcha
+		result, err := recaptcha.Confirm(r.RemoteAddr, recaptchaResponse)
+		if err != nil || !result {
+			http.Error(w, "captcha failed", http.StatusInternalServerError)
+			return
+		}
 
 		conn, err := net.Dial("tcp", "bot:3000")
 		if err != nil {

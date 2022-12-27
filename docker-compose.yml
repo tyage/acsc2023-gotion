@@ -4,6 +4,9 @@ services:
   app:
     build:
       context: app
+    environment:
+      - RECAPTCHA_SITEKEY=$RECAPTCHA_SITEKEY
+      - RECAPTCHA_SECRETKEY=$RECAPTCHA_SECRETKEY
   nginx:
     image: nginx:1.23
     volumes:
