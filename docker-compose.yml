@@ -19,6 +19,6 @@ services:
       - ./bot/bot.js:/home/pptruser/bot.js
     environment:
       - FLAG=CTF{dummyflag}
-      - APP_BASEURL=http://nginx/
-      - APP_HOST=nginx
+      - APP_BASEURL=http://gotion..../
+      - APP_HOST=gotion....
     command: node /home/pptruser/bot.js
