@@ -18,13 +18,11 @@
   <div class="container">
     <h1 class="my-5 text-center">Gotion</h1>
 
-    <div class="my-3">
-      How to use
+    <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#howtoModal">
+      Check how to use
+    </button>
 
-      TODO: put video
-    </div>
-
-    <form action="/new-note" method="POST" class="row g-3">
+    <form action="/new-note" method="POST" class="row g-3 my-3">
       <div class="col-12">
         <input type="text" name="title" class="form-control" placeholder="title format [a-zA-Z0-9 ]+"
           pattern="[a-zA-Z0-9 ]+" maxlength="20">
@@ -37,6 +35,20 @@
         <input type="submit" value="Post" class="btn btn-primary">
       </div>
     </form>
+  </div>
+
+  <div class="modal fade" id="howtoModal" tabindex="-1" aria-labelledby="howtoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="howtoModalLabel">How to use</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <video src="/howto.mp4" class="container-fluid" controls></video>
+        </div>
+      </div>
+    </div>
   </div>
 
 </body>
