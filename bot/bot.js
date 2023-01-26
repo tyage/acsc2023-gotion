@@ -56,7 +56,8 @@ class CralwQueue {
   }
 
   async crawl(browser, path = '') {
-    const url = APP_BASEURL + path
+    const url = new URL(APP_BASEURL)
+    url.pathname = path
 
     console.log("crawl start:", url)
 
