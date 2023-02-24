@@ -2,7 +2,7 @@ const pptr = require('puppeteer')
 const net = require('net')
 
 const APP_BASEURL = process.env.APP_BASEURL || 'http://nginx/'
-const APP_HOST = process.env.APP_HOST || 'nginx'
+const APP_DOMAIN = (new URL(APP_BASEURL)).host
 const FLAG = process.env.FLAG || 'CTF{dummyflag}'
 const BROWSER_POOL = process.env.BROWSER_POOL || 4
 
@@ -70,7 +70,7 @@ class CralwQueue {
     await page.setCookie({
       name: "FLAG",
       value: FLAG,
-      domain: APP_HOST,
+      domain: APP_DOMAIN,
       path: "/",
     });
 

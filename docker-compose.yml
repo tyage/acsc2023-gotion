@@ -20,5 +20,4 @@ services:
     environment:
       - FLAG=CTF{dummyflag}
       - APP_BASEURL=$APP_BASEURL
-      - APP_HOST=$APP_HOST
     command: node /home/pptruser/bot.js
